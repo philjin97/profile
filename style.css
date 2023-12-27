@@ -62,3 +62,9 @@ img {
     display: flex;
     align-items: center;
 }
+
+.second-page {
+    display: grid;
+    grid-template-columns: 2fr 8fr 2fr;
+    height: 100vh;
+}
