@@ -105,7 +105,6 @@
                         <br>
                         <h6><b>To reset the link to the remote repository</b></h6>
                         <h6>1. <code>git remote set-url origin 'new-url'</code></h6>
-                        <br>
                         <h6><b>To clone a specific branch</b></h6>
                         <h6>1. <code>clone -b 'branch-name' 'repository url'</code></h6>
                         <h6><b>To create a new branch for development</b></h6>
@@ -124,7 +123,111 @@
               </h2>
               <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                  <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                  <p>Building API’s with Python & Django REST Framework
+                    Dennis Ivy
+                    https://www.youtube.com/watch?v=c0x_AaPjNCY
+                    
+                    Set Up 
+                    Virtual Environment 
+                    What? The virtualenv tool creates an isolated Python environment that is completely separate from the system-wide Python environment. 
+                    Why? Useful for having a clean-slate for your projects as any settings, 3rd-party packages, from the system-wide environment do no appear in the virtual environment. 
+                    
+                    Create virtual environment: python -m venv venv 
+                    Activate virtual environment: source venv/Scripts/activate
+                    Install Django with the version that has LTS: pip install==3.2.18 
+                    Make a record of the currently installed versions and programs: pip freeze > requirements.txt
+                    
+                    Django Project
+                    Start Django project: Django-admin startproject cados_api
+                    Start Django app: python manage.py startapp base
+                    Register the app to the project: In cados_api/settings.py add ‘base’ to Installed Apps. 
+                    
+                    Create view for simple JSON response
+                    In the base/view.py: 
+                    1. From Django.http import JsonResponse
+                    2. Def endpoints(request): 
+                      data = [‘/advocates’, ‘advocates/:username’]
+                      return JsonResponse(data, safe=False)
+                    ‘safe=True’ is the default setting in Django. Safe parameter as a data influencer makes JSON accept the Python Data-Type {Dictionaries} and nothing less. 
+                    Is Python Dictionary an object? No. In JavaScript it is similar but in Python a class is an object and a dictionary is just a data-structure. 
+                    Now you need a url to access the view function. Create a urls.py in the base app. In the base/urls.py: 
+                    1. From Django.urls import path 
+                    2. Urlpatterns = [path(‘’, views.endpoints),] 
+                    In order to access this url file, you need to hook it up to the project’s url file. In the cados_api/urls.py:
+                    1. From Django.urls import path, include
+                    2. Urlpatterns = [path(‘’, include(‘base.urls’))]
+                    To run the server: 
+                    1. Python manage.py runserver 
+                     
+                    Create a view that takes a dynamic value from the url
+                      In base/views.py: 
+                      1. Def advocate_detail(request, username):
+                        Data = username
+                        Return JsonResponse(data, safe=False)
+                    In base/urls.py: 
+                    1. Urlpatterns = [path(‘advocates/<str:username>/’, views.advocate_detail)]
+                    In order to get a dynamic value from the url, the url can be set within <> with the datatype. In this case the username variable will be a string. 
+                     
+                    
+                    Using the Django REST Framework. Difference between Django is that Django is a full stack application that you can use for both frontend and backend. Django REST framework is a library that creates a wrapper on top of Django that makes building APIs easier. 
+                    Install Django REST framework
+                    1. Pip install djangorestframework
+                    2. In cados_api/settings.py register ‘rest_framework’ in Installed_Apps. 
+                    
+                    To use the Django REST framework, you have to import the api_view, and Response. The api_view is a decorator which takes a list of HTTP methods that your view should respond to. The Response method has more functions than the JsonResponse. You use a decorator in order to set a condition or detail about the function. 
+                     
+                    
+                    Create a view using the rest_framework
+                    In base/views.py:
+                    1. From rest_framework.decorators import api_view
+                      From rest_framework.response import Response
+                    2. @api_view([‘GET’])
+                      def endpoints(request):
+                      data = [‘/advocates’, ‘advocates/:username’]
+                      return Response(data)
+                    Since I want the view function endpoints to only get http GET request, use the @api_view decorator to only accept GET requests. To use the Response from the rest_framework, change the return JsonResponse to return Response. 
+                     
+                    
+                    Create the database (models)
+                      In base/models.py: 
+                       
+                    2. Run a migration of your database. Python manage.py makemigrations. This command creates a file that basically maps out how the database will look. 
+                    3. Python manage.py migrate. This will apply the migrations to the database (SQL lite).
+                    To use the Django UI to take a look at the database, you need to access the admin page. In order to access the admin page, you can create a superuser and register an admin account. 
+                    1. Python manage.py createsuperuser
+                    2. After creating and logging into the admin page, you need to register the model to the admin page. In base/admin.py: 
+                    3. From .models import Advocate
+                      Admin.site.register(Advocate)
+                    Without defining a string representation of the models, they will simply appear as Advocate object 1. Thus, we need to define the string representation in base/models.py.
+                     
+                    In base/models.py, under class Advocate(models.Model):
+                    1. Def __str__(self): 
+                      return self.username
+                    This is just a method so don’t need to run a migration again. If you want another value than username to pop up, you can alter that as self.bio, etc. 
+                    
+                    Serializing the class into a Json data type
+                    In base/view.py:
+                    1. From .models import Advocate
+                    2. Erase the data=[] and now use advocates = Advocate.objects.all(). This is a Django ORM used to alter the database using Python.
+                      
+                    As follows, you will get an error. When you get this type of data, you need to serialize it. Need to take a class or a dictionary and modify it into Json data. Json data is a uniform data type that we use with APIs. In this case, the Response method could serialize a list and a dictionary, but it can’t serialize a class like it is defined in the models.py. Thus need to use a serializer to take the Advocate data and turn it into a Json object. 
+                    1. In base, create serializers.py. In base/serializers.py:
+                    2. From rest_framework.serializers import ModelSerializer 
+                      From .models import Advocate
+                    3. Class AdvocateSerializer(ModelSerializer):
+                      class Meta:
+                        model = Advocate 
+                        fields = ‘__all__’
+                    4. In base/views.py: 
+                    5. From .serializers import AdvocateSerializer
+                    6. Use the Django ORM to query the dataset then pass it to the AdvocateSerializer. Use the many parameter in order to create the serializer into a list where it serializes many objects. When passing it into Response, since the serializer is a class instance, we can use serializer.data to get the attribute from the serializer. 
+                    def advocate_list(request): 
+                      advocates = Advocate.objects.all()
+                      serializer = AdvocateSerializer(advocates, many=True)
+                      return Reponse(serializer.data) 
+                    When using the dynamic value from the url to query the dataset for users, change the Django ORM code used to query from the dataset getting the users. 
+                     
+                    </p>
                 </div>
               </div>
             </div>
