@@ -234,6 +234,31 @@
             <div class="accordion-item">
               <h2 class="accordion-header" id="headingThree">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Docker
+                </button>
+              </h2>
+              <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  How to containerize a Django application
+
+                  1. Run Docker Desktop on your computer. 
+                  2. First, you need to create a Docker image to build your container. A Docker image is made from a Dockerfile. 
+                  
+                  The follow Dockerfile is written as follows:
+                  In order to build a Django application, you need to install Python. Thus, you use the FROM command in order to refer to a image of Python that is stored in Docker. You use the WORKDIR in order to refer to a directory that this Dockerfile will be working on. If the folder does not exist, Docker will create the folder. Now you will COPY the requirements.txt file that is in the same directory as the Dockerfile to the backend folder. RUN the pip install command in order to install all the libraries specified in the .txt file. Now you can either COPY the Django application in the same directory as the Dockerfile to the backend folder or you can RUN django-admin startproject command in order to create a new Django project in the backend folder. Finally RUN the python manage.py runserver command in order to start the local server with the Django application. Remember to specify the server to 0.0.0.0:8000 to connect the internal port to the external port. 
+
+                  With that said, run the command ‘docker image build –tag backend:1.0 .’. Docker image build means to build a new docker image with the name backend and version 1.0 with a dot at the end to provide a single argument referring to a Dockerfile in the same directory. 
+
+                  3. Now, you need to run a container using the image that you have created. Think of an image as the map, and the container as the actual computer made from the map. 
+
+                  Run the command ‘docker container run –name web1 -p 8000:8000 backend:1.0’. Docker container run means to run a docker container with a name web1 with the local port and the Docker port matched at 8000 using the image name backend:1.0. 
+
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                   Accordion Item #3
                 </button>
               </h2>
